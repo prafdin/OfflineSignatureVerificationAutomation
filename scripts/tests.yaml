@@ -4,10 +4,10 @@ tests: # Mandatory key
     axis: # Mandatory key
       - prepare.mode
       - prepare.fixed_size
-#      - featurization.method
-#      - featurization.patterns_hist
-#      - split.train_samples_per_user
-#      - split.salt
+      - featurization.method
+      - featurization.patterns_hist
+    #      - split.train_samples_per_user
+    #      - split.salt
     variants: # Mandatory key
       - prepare.mode:
           - default
@@ -23,9 +23,9 @@ tests: # Mandatory key
       - featurization.patterns_hist: [4, 6, 8]
       - split.train_samples_per_user: [6, 12, 18]
       - split.salt: [22, 44]
-    excludes: # Mandatory key
-      - prepare.mode:
-          - default
-        featurization.method:
-          - patterns_hist
-          - polinom_coefficients_hist
+    excludes: [] # Mandatory key
+#      - prepare.mode:
+#          - default
+#        featurization.method:
+#          - patterns_hist
+#          - polinom_coefficients_hist
