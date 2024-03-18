@@ -66,6 +66,8 @@ class ConfigurationMatrixWithExcludes(ConfigurationMatrixInterface):
 
         self._excludes = []
         for exclude in excludes:
+            if len(exclude.keys()) != len(exclude.keys() & self._configuration_matrix.get_axes()):
+                raise RuntimeError("Exclude configuration isn't correct. Not all excluded axes exists in matrix")
             exclude_idx = []
             for axis_name in self._configuration_matrix.get_axes():
                 if axis_name in exclude:
