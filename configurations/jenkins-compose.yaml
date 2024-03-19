@@ -1,0 +1,44 @@
+version: "3"
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    privileged: true
+    ports:
+      - "0.0.0.0:8080:8080/tcp"
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - VPN_SERVICE_PROVIDER=custom
+      - VPN_TYPE=openvpn
+      - OPENVPN_CUSTOM_CONFIG=/gluetun/custom.conf
+      - OPENVPN_USER=jenkins-master
+      - OPENVPN_PASSWORD=P@ssw0rd321
+    volumes:
+      - ./profile.ovpn:/gluetun/custom.conf:ro
+    networks:
+      shared:
+        aliases:
+          - gluetun
+  jenkins-master:
+    image: cd151a63c5c9
+    network_mode: "service:gluetun"
+    depends_on: 
+      - gluetun
+    volumes:
+      - jenkins-master-data:/var/jenkins_home
+  jenkins-local-slave:
+    image: 4c73c38d4b5d
+    depends_on: 
+      - jenkins-master
+    networks:
+      - shared
+    environment:
+      - JENKINS_SECRET=eb029e645c2ed211e7bde96435c7e45b63037af14dc001c91a06d886b7723cb2
+      - JENKINS_AGENT_NAME=local-slave
+      - JENKINS_AGENT_WORKDIR=./jenkins-agent
+      - JENKINS_URL=http://gluetun:8080
+networks:
+  shared:
+volumes:
+  jenkins-master-data:
+    external: true
