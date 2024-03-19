@@ -1,6 +1,8 @@
 import groovy.transform.Field
 
 @Field
+String sourceRepositoryUrl = "https://github.com/prafdin/OfflineSignatureVerification.git"
+@Field
 String testSlaveJobPath = "Test-Slave"
 @Field
 List<String> dvcConfigurationStrings = []
@@ -17,7 +19,10 @@ try {
         stage("Run slaves") {
             def slavesJobs = [:]
             dvcConfigurationStrings.eachWithIndex { configurationString, idx ->
-                def jobParams = [string(name: 'PARAM', value: "${configurationString}")]
+                def jobParams = [
+                    string(name: 'SOURCE_BRANCH', value: params.SOURCE_BRANCH),
+                    string(name: 'DVC_OVERRIDES', value: configurationString),
+                ]
                 slavesJobs["Job ${idx}"] = {
                     build(job: testSlaveJobPath, parameters: jobParams)
                 }
@@ -31,17 +36,18 @@ try {
 finally {
     properties([
         parameters([
-            gitParameter(
-                name: 'CODE_BRANCH',
-                quickFilterEnabled: false,
-                selectedValue: 'NONE',
+            listGitBranches(
+                branchFilter: 'refs/heads/(.*)',
+                credentialsId: '',
+                defaultValue: 'master',
+                listSize: '0',
+                name: 'SOURCE_BRANCH',
+                quickFilterEnabled: true,
+                remoteURL: sourceRepositoryUrl,
+                selectedValue: 'DEFAULT',
                 sortMode: 'NONE',
                 tagFilter: '*',
-                type: 'PT_BRANCH',
-                useRepository: 'https://github.com/prafdin/OfflineSignatureVerification.git',
-                branch: '',
-                branchFilter: 'origin/(.*)',
-                defaultValue: 'master',
+                type: 'PT_BRANCH'
             ),
             text(
                name: 'TEST_CONFIG',
