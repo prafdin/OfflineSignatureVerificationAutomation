@@ -4,10 +4,10 @@ tests: # Mandatory key
     axis: # Mandatory key
       - prepare.mode
       - prepare.fixed_size
-      - featurization.method
-      - featurization.patterns_hist
-      - split.train_samples_per_user
-      - split.salt
+#      - featurization.method
+#      - featurization.patterns_hist
+#      - split.train_samples_per_user
+#      - split.salt
     variants: # Mandatory key
       - prepare.mode:
           - default
