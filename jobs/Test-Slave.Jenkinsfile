@@ -27,16 +27,18 @@ try {
                 ]
             )
             dir(sourceCodeDir) {
-                archiveArtifacts artifacts: 'params.yaml,dvc.yaml', followSymlinks: false
+                def filesToArchive = ["params.yaml", "dvc.yaml", "repository_state.txt"]
                 if (params.DVC_OVERRIDES) {
                     writeFile file: 'dvc_override_string.txt', text: params.DVC_OVERRIDES
+                    filesToArchive.add("dvc_override_string.txt")
                 }
                 writeFile file: 'repository_state.txt', text: sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-                archiveArtifacts artifacts: '*.txt', followSymlinks: false
+
+                archiveArtifacts artifacts: filesToArchive.join(","), followSymlinks: false
 
                 sh("""\
                     dvc remote default local-cloud
-                    dvc pull
+                    dvc pull --allow-missing
                 """.stripIndent())
 
                 if (params.DVC_OVERRIDES) {
@@ -50,12 +52,22 @@ try {
                     """.stripIndent())
                 }
                 def countQueuedExperiments = sh(script: "dvc queue status", returnStdout: true).count("Queued")
+                println("[INFO] Cound queued experiments: ${countQueuedExperiments}")
                 sh("dvc queue start -j ${jobsCount}")
 
-                waitUntil(initialRecurrencePeriod: 15000) {
+                waitUntil(quiet: true) {
+                    sleep("90")
                     def statusCommandStdout = sh(script: "dvc queue status", returnStdout: true)
+                    def successfulExperiments = statusCommandStdout.count("Success")
+                    def queuedExperiments = statusCommandStdout.count("Queued")
+                    def failedExperiments = statusCommandStdout.count("Failed")
+                    println("""\
+                    Successful experiments: ${successfulExperiments}
+                    Queued experiments: ${queuedExperiments}
+                    Failed experiments: ${failedExperiments}
+                    """.stripIndent())
 
-                    statusCommandStdout.count("Success") + statusCommandStdout.count("Failed") == countQueuedExperiments
+                    successfulExperiments + failedExperiments == countQueuedExperiments
                 }
             }
         }
