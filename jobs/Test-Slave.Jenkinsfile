@@ -37,21 +37,26 @@ try {
                 sh("""\
                     dvc remote default local-cloud
                     dvc pull
-                    dvc exp run --queue -j ${jobsCount} ${params.DVC_OVERRIDES} 
                 """.stripIndent())
 
                 if (params.DVC_OVERRIDES) {
                     sh("""\
-                        dvc exp run --queue -j ${jobsCount} ${params.DVC_OVERRIDES} 
-                        dvc queue start
+                        dvc exp run --queue ${params.DVC_OVERRIDES}
                     """.stripIndent())
                 }
                 else {
                     sh("""\
-                        dvc exp run --queue -j ${jobsCount}
+                        dvc exp run --queue
                     """.stripIndent())
                 }
-                // TODO: Wait until experiments are finished
+                def countQueuedExperiments = sh(script: "dvc queue status", returnStdout: true).count("Queued")
+                sh("dvc queue start -j ${jobsCount}")
+
+                waitUntil(initialRecurrencePeriod: 15000) {
+                    def statusCommandStdout = sh(script: "dvc queue status", returnStdout: true)
+
+                    statusCommandStdout.count("Success") + statusCommandStdout.count("Failed") == countQueuedExperiments
+                }
             }
         }
 
