@@ -58,14 +58,16 @@ try {
                 waitUntil(quiet: true) {
                     sleep("90")
                     def statusCommandStdout = sh(script: "dvc queue status", returnStdout: true)
+
+                    def runningExperiments = statusCommandStdout.count("Running")
                     def successfulExperiments = statusCommandStdout.count("Success")
                     def queuedExperiments = statusCommandStdout.count("Queued")
                     def failedExperiments = statusCommandStdout.count("Failed")
                     println("""\
+                    Running experiments: ${runningExperiments}
                     Successful experiments: ${successfulExperiments}
                     Queued experiments: ${queuedExperiments}
-                    Failed experiments: ${failedExperiments}
-                    """.stripIndent())
+                    Failed experiments: ${failedExperiments}""".stripIndent())
 
                     successfulExperiments + failedExperiments == countQueuedExperiments
                 }
