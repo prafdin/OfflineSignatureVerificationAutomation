@@ -39,18 +39,9 @@ try {
                 sh("""\
                     dvc remote default local-cloud
                     dvc pull --allow-missing
+                    dvc exp run --queue ${params.DVC_OVERRIDES}
                 """.stripIndent())
 
-                if (params.DVC_OVERRIDES) {
-                    sh("""\
-                        dvc exp run --queue ${params.DVC_OVERRIDES}
-                    """.stripIndent())
-                }
-                else {
-                    sh("""\
-                        dvc exp run --queue
-                    """.stripIndent())
-                }
                 def countQueuedExperiments = sh(script: "dvc queue status", returnStdout: true).count("Queued")
                 println("[INFO] Cound queued experiments: ${countQueuedExperiments}")
                 sh("dvc queue start -j ${jobsCount}")
@@ -71,6 +62,9 @@ try {
 
                     successfulExperiments + failedExperiments == countQueuedExperiments
                 }
+                sh("dvc exp show --json > raw_exp.json")
+                sh("jq [.[].data | { rev, metrics: .metrics[][] , params: .params[\"params.yaml\"].data }] exp.json > exp.json")
+                archiveArtifacts artifacts: "exp.json", followSymlinks: false
             }
         }
 
