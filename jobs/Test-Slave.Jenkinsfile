@@ -63,7 +63,7 @@ try {
                     successfulExperiments + failedExperiments == countQueuedExperiments
                 }
                 sh("dvc exp show --json > raw_exp.json")
-                sh("jq '[.[].data | { rev, metrics: .metrics[][] , params: .params[\"params.yaml\"].data }]' raw_exp.json > exp.json")
+                sh("jq '[ .[] | select(.experiments != null ) | .experiments[] | { metrics: .revs[].data.metrics[][], params: .revs[].data.params[][]} ]' raw_exp.json > exp.json")
                 archiveArtifacts artifacts: "exp.json", followSymlinks: false
             }
         }
