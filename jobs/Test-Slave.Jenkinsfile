@@ -67,12 +67,10 @@ try {
                 archiveArtifacts artifacts: "exp.json", followSymlinks: false
 
                 withCredentials([string(credentialsId: 'mongodb_connection_string', variable: 'connection_string')]) {
-                    sh("mongoimport --jsonArray --file=exp.json --sslCAFile=/home/jenkins/.mongodb/root.crt --db=db1 --collection=exps --uri=${connection_string}")
+                    sh("mongoimport --jsonArray --file=exp.json --ssl --authenticationDatabase=db1 --sslCAFile=/home/jenkins/.mongodb/root.crt --db=db1 --collection=exps --uri=${connection_string}")
                 }
             }
         }
-
-        cleanWs()
     }
 }
 finally {
@@ -95,5 +93,6 @@ finally {
             ),
         ])
     ])
+    cleanWs()
 }
 
