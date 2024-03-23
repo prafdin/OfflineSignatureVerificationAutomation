@@ -65,6 +65,10 @@ try {
                 sh("dvc exp show --json > raw_exp.json")
                 sh("jq '[ .[] | select(.experiments != null ) | .experiments[] | { rev: \"${gitRevision}\", metrics: .revs[].data.metrics[][], params: .revs[].data.params[][]} ]' raw_exp.json > exp.json")
                 archiveArtifacts artifacts: "exp.json", followSymlinks: false
+
+                withCredentials([string(credentialsId: 'mongodb_connection_string', variable: 'connection_string')]) {
+                    sh("mongoimport --jsonArray --db db1 --collection exps --file exp.json --uri '${connection_string}'")
+                }
             }
         }
 
