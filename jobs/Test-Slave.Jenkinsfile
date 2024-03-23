@@ -4,9 +4,8 @@ import groovy.transform.Field
 String sourceRepositoryUrl = "https://github.com/prafdin/OfflineSignatureVerification.git"
 @Field
 int jobsCount = 3
-
-try {
-    node('jenkins-slave') {
+node('jenkins-slave') {
+    try {
         stage("Check parameters") {
             def requiredParameters = [params.SOURCE_BRANCH]
             if (!requiredParameters.every()) {
@@ -72,27 +71,26 @@ try {
             }
         }
     }
-}
-finally {
-    properties([
-        parameters([
-            string(name: 'SOURCE_BRANCH', defaultValue: 'master'),
-            string(
-                name: 'DVC_OVERRIDES',
-                defaultValue: '',
-                description: """\
-                Value of this parameter will be added after command:
-                <pre>
-                dvc exp run --queue -j N \$DVC_OVERRIDES
-                </pre>                    
-                Example:<br/>
-                <pre>
-                -S prepare.mode="default,thinned" -S prepare.fixed_size="'600,800','300,400'"
-                </pre>
-                """.stripIndent()
-            ),
+    finally {
+        properties([
+            parameters([
+                string(name: 'SOURCE_BRANCH', defaultValue: 'master'),
+                string(
+                    name: 'DVC_OVERRIDES',
+                    defaultValue: '',
+                    description: """\
+                    Value of this parameter will be added after command:
+                    <pre>
+                    dvc exp run --queue -j N \$DVC_OVERRIDES
+                    </pre>                    
+                    Example:<br/>
+                    <pre>
+                    -S prepare.mode="default,thinned" -S prepare.fixed_size="'600,800','300,400'"
+                    </pre>
+                    """.stripIndent()
+                ),
+            ])
         ])
-    ])
-    cleanWs()
+        cleanWs()
+    }
 }
-
