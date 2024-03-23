@@ -32,7 +32,7 @@ try {
                     writeFile file: 'dvc_override_string.txt', text: params.DVC_OVERRIDES
                     filesToArchive.add("dvc_override_string.txt")
                 }
-                writeFile file: 'repository_state.txt', text: sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                def gitRevision = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
                 archiveArtifacts artifacts: filesToArchive.join(","), followSymlinks: false
 
@@ -63,7 +63,7 @@ try {
                     successfulExperiments + failedExperiments == countQueuedExperiments
                 }
                 sh("dvc exp show --json > raw_exp.json")
-                sh("jq '[ .[] | select(.experiments != null ) | .experiments[] | { metrics: .revs[].data.metrics[][], params: .revs[].data.params[][]} ]' raw_exp.json > exp.json")
+                sh("jq '[ .[] | select(.experiments != null ) | .experiments[] | { rev: \"${gitRevision}\", metrics: .revs[].data.metrics[][], params: .revs[].data.params[][]} ]' raw_exp.json > exp.json")
                 archiveArtifacts artifacts: "exp.json", followSymlinks: false
             }
         }
