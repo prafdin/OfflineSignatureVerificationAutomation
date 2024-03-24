@@ -1,0 +1,8 @@
+---
+x_axis: "$.params.eval.knn.k" #"$.rev"
+y_axis: "$.metrics.avg_prec"
+
+filters:
+  - key: "$.rev"
+    value: "8c671c1002aa8b7ee2c417296e605ec3bde1826e"
+
