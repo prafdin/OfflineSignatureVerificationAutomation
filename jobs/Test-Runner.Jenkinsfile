@@ -13,8 +13,11 @@ try {
             checkout scm
             dir("scripts") {
                 if (params.TEST_CONFIG) {
+                    customTestConfig = readYaml(text: params.TEST_CONFIG)
+                    testsConfig = readYaml(file: "tests.yaml")
+                    testsConfig['sanity_check'] = customTestConfig
                     sh("rm -f tests.yaml")
-                    writeFile(file: 'tests.yaml', text: params.TEST_CONFIG)
+                    writeYaml data: testsConfig, file: "tests.yaml"
                 }
                 sh "python3 generate_dvc_configs.py"
                 dvcConfigurationStrings = readYaml(file: "dvc_configuration_strings.yaml")
@@ -91,5 +94,6 @@ finally {
             ),
         ])
    ])
+    cleanWs()
 }
 
