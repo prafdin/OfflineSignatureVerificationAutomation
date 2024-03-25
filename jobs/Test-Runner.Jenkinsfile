@@ -16,7 +16,7 @@ node('local-slave') {
                 if (params.TEST_CONFIG) {
                     customTestConfig = readYaml(text: params.TEST_CONFIG)
                     testsConfig = readYaml(file: "tests.yaml")
-                    testsConfig['sanity_check'] = customTestConfig
+                    testsConfig['tests']['sanity_check'] = customTestConfig
                     sh("rm -f tests.yaml")
                     writeYaml data: testsConfig, file: "tests.yaml"
                 }
@@ -60,38 +60,38 @@ node('local-slave') {
                         text(
                             name: 'TEST_CONFIG',
                             description: """\
-                Example:
-                <pre>
-                axis: 
-                  - prepare.mode
-                  - prepare.fixed_size
-                  - featurization.method
-                  - featurization.patterns_hist
-                  - split.train_samples_per_user
-                  - split.salt
-                variants: 
-                  - prepare.mode:
-                      - default
-                      - thinned
-                  - prepare.fixed_size:
-                      - "'300,400'"
-                      - "'600,800'"
-                  - featurization.method:
-                      - lbp
-                      - hog
-                      - patterns_hist
-                      - polinom_coefficients_hist
-                  - featurization.patterns_hist: [4, 6, 8]
-                  - split.train_samples_per_user: [6, 12, 18]
-                  - split.salt: [22, 44]
-                excludes: 
-                  - prepare.mode:
-                      - default
-                    featurization.method:
-                      - patterns_hist
-                      - polinom_coefficients_hist
-                </pre> 
-               """.stripIndent()
+                            Example:
+                            <pre>
+                            axis: 
+                              - prepare.mode
+                              - prepare.fixed_size
+                              - featurization.method
+                              - featurization.patterns_hist
+                              - split.train_samples_per_user
+                              - split.salt
+                            variants: 
+                              - prepare.mode:
+                                  - default
+                                  - thinned
+                              - prepare.fixed_size:
+                                  - "'300,400'"
+                                  - "'600,800'"
+                              - featurization.method:
+                                  - lbp
+                                  - hog
+                                  - patterns_hist
+                                  - polinom_coefficients_hist
+                              - featurization.patterns_hist: [4, 6, 8]
+                              - split.train_samples_per_user: [6, 12, 18]
+                              - split.salt: [22, 44]
+                            excludes: 
+                              - prepare.mode:
+                                  - default
+                                featurization.method:
+                                  - patterns_hist
+                                  - polinom_coefficients_hist
+                            </pre> 
+                           """.stripIndent()
                         ),
                     ]
                 )
