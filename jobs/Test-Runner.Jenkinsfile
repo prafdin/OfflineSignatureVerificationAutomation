@@ -12,6 +12,10 @@ try {
         stage("Prepare configurations") {
             checkout scm
             dir("scripts") {
+                if (params.TEST_CONFIG) {
+                    sh("rm -f tests.yaml")
+                    writeFile(file: 'tests.yaml', text: params.TEST_CONFIG)
+                }
                 sh "python3 generate_dvc_configs.py"
                 dvcConfigurationStrings = readYaml(file: "dvc_configuration_strings.yaml")
             }
