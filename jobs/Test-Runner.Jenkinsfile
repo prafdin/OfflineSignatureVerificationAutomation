@@ -7,8 +7,9 @@ String testSlaveJobPath = "Test-Slave"
 @Field
 List<String> dvcConfigurationStrings = []
 
-try {
-    node('local-slave') {
+
+node('local-slave') {
+    try {
         stage("Prepare configurations") {
             checkout scm
             dir("scripts") {
@@ -37,28 +38,28 @@ try {
 
             parallel(slavesJobs)
         }
-
     }
-}
-finally {
-    properties([
-        parameters([
-            listGitBranches(
-                branchFilter: 'refs/heads/(.*)',
-                credentialsId: '',
-                defaultValue: 'master',
-                listSize: '0',
-                name: 'SOURCE_BRANCH',
-                quickFilterEnabled: true,
-                remoteURL: sourceRepositoryUrl,
-                selectedValue: 'DEFAULT',
-                sortMode: 'NONE',
-                tagFilter: '*',
-                type: 'PT_BRANCH'
-            ),
-            text(
-               name: 'TEST_CONFIG',
-               description: """\
+    finally {
+        properties(
+            [
+                parameters(
+                    [
+                        listGitBranches(
+                            branchFilter: 'refs/heads/(.*)',
+                            credentialsId: '',
+                            defaultValue: 'master',
+                            listSize: '0',
+                            name: 'SOURCE_BRANCH',
+                            quickFilterEnabled: true,
+                            remoteURL: sourceRepositoryUrl,
+                            selectedValue: 'DEFAULT',
+                            sortMode: 'NONE',
+                            tagFilter: '*',
+                            type: 'PT_BRANCH'
+                        ),
+                        text(
+                            name: 'TEST_CONFIG',
+                            description: """\
                 Example:
                 <pre>
                 axis: 
@@ -91,9 +92,12 @@ finally {
                       - polinom_coefficients_hist
                 </pre> 
                """.stripIndent()
-            ),
-        ])
-   ])
-    cleanWs()
+                        ),
+                    ]
+                )
+            ]
+        )
+        cleanWs()
+    }
 }
 
