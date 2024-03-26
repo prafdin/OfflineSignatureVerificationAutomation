@@ -107,13 +107,6 @@ class PrintableConfigurationMatrix:
         for configuration in self._get_all_configuration():
             print(configuration)
 
-
-def chunks(lst, n):
-    # https://stackoverflow.com/questions/312443/how-do-i-split-a-list-into-equally-sized-chunks
-    """Yield successive n-sized chunks from lst."""
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
-
 class DvcConfigurations:
     def __init__(self, configuration_matrix: ConfigurationMatrixInterface, batch_size=1):
         self._configuration_matrix = configuration_matrix
@@ -127,7 +120,17 @@ class DvcConfigurations:
     def get_configuration_strings(self):
         configurations = self._get_all_configuration()
         configurations = [configuration for configuration in configurations if configuration is not None]
-        configurations_batches = chunks(configurations, self._batch_size)
+
+        configurations_batches = []
+        configurations_batch = []
+        for configuration in configurations:
+            if np.prod([len(np.unique(i)) for i in np.array([*configurations_batch, configuration]).T]) > self._batch_size:
+                configurations_batches.append(configurations_batch)
+                configurations_batch = []
+                configurations_batch.append(configuration)
+            else:
+                configurations_batch.append(configuration)
+        configurations_batches.append(configurations_batch)
 
         configuration_strings = []
         for batch in configurations_batches:
