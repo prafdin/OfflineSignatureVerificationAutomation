@@ -8,7 +8,7 @@ String testSlaveJobPath = "Test-Slave"
 List<String> dvcConfigurationStrings = []
 
 
-node('local-slave') {
+node('jenkins-container-slave') {
     try {
         stage("Prepare configurations") {
             checkout scm
